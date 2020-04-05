@@ -13,7 +13,7 @@ import {ValidationSchema, ValidationError} from 'fastest-validator';
 import * as Validator from 'fastest-validator';
 import {ElectronJSONSettingsStoreResult} from '.';
 
-interface ElectronJSONSettingsStoreMainOptions {
+export interface ElectronJSONSettingsStoreMainOptions {
   /**
    * Extension of the config file
    *

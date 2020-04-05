@@ -6,7 +6,7 @@
  * Copyright (c) 2020 [Samuel Carreira]
  */
 import { ElectronJSONSettingsStoreResult } from '.';
-interface ElectronJSONSettingsStoreMainOptions {
+export interface ElectronJSONSettingsStoreMainOptions {
     /**
      * Extension of the config file
      *
@@ -345,4 +345,3 @@ export default class ElectronJSONSettingsStoreMain {
     private _writeBeforeQuit;
     private _handleIpc;
 }
-export {};

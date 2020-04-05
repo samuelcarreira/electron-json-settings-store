@@ -10,7 +10,7 @@ import {ipcRenderer} from 'electron';
 import {EventEmitter} from 'events';
 import {ElectronJSONSettingsStoreResult} from '.';
 
-interface ElectronJSONSettingsStoreRendererOptions {
+export interface ElectronJSONSettingsStoreRendererOptions {
   /**
    * Emits event when settings is updated. Disable if you don't
    * need to 'watch' settings change (can lead to a small
