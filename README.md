@@ -64,7 +64,7 @@ You only need to follow 4 simple steps to start using this module:
 ```
 3. Declare the class with your preferred settings and initialize the library to read the values from the JSON file
 ```
-    const config = new ElectronJSONSettingsStoreMain(schema, { defaultOnFailValidation: true, watchFile: false, saveBeforeQuit: true });
+    const config = new ElectronJSONSettingsStoreMain(schema, { watchFile: false, saveBeforeQuit: true });
 
     // sync mode is easy to use, but experience programmers can use async mode
     config.initSync();
@@ -286,7 +286,7 @@ Property         | Type     | Default    | Description
 
 
 
-## Listen of Updated event
+## Listen the `updated` event
 If you enable `emitEventOnUpdated` option, an event is emitted when settings are updated. This option is a renderer process exclusive. You can listen to this event by using this code:
 ```
     config.on('updated', settings => {
@@ -491,6 +491,7 @@ Please send pull requests improving the usage and fixing bugs, improving documen
 
 ## TODO list
 - [ ]  Code revision for bug squashing
+- [ ]  Add tests
 
 
 ## FAQ
