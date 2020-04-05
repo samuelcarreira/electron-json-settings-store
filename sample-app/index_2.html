@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Electron JSON Settings Store Sample - Settings</title>
+  <style>
+    body {
+      color: black;
+      opacity: 0.2;
+    }
+
+    html {
+      background: linear-gradient(to top, #91EAE4, #86A8E7, #7F7FD5);
+      background-size: cover;
+      background-repeat: no-repeat;
+      height: 100%;
+      font-family: sans-serif;
+    }
+
+    .error {
+      color: red;
+      font-size: small;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Sample Settings</h1>
+  <hr>
+
+  <label for="name">Name:</label>
+  <input type="text" id="name" name="name" autocomplete="off" maxlength="50">
+  <br><br>
+
+  <label for="dark">Dark Mode:</label>
+  <input type="checkbox" id="dark" name="dark">
+  <br><br>
+
+  <p class="error" id="size-error"></p>
+  <label for="size">Font size:</label>
+  <!-- minimum should be 25 but its defined to 1 to test the error message -->
+  <input type="number" id="size" name="size" min="1" max="40" step="1">
+</body>
+
+</html>
