@@ -84,7 +84,7 @@ You only need to follow 4 simple steps to start using this module:
 ```
 
 ## Test the sample app
-[picture]
+![Sample app screenshot](https://raw.githubusercontent.com/samuelcarreira/electron-json-settings-store/master/sample-app/screenshot.png)
 1. Download or clone this repository
 2. Run `npm install` to install the dependencies
 3. Run `npm run test-electron` and browse the *sample-app* folder
