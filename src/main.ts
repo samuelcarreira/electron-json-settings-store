@@ -45,14 +45,14 @@ export interface ElectronJSONSettingsStoreMainOptions {
    * Settings will be validated after file reading
    * Note: the file is read on startup and on changed
    * content (if watch option is true)
-   * Prevents the injection of invalid or warmfull settings
+   * Prevents the injection of invalid or harmfull settings
    *
    * @default true
    */
   validateFile: boolean;
   /**
    * Setting will be validated before is set
-   * Prevents the injection of invalid or warmfull settings
+   * Prevents the injection of invalid or harmfull settings
    *
    * @default true
    */

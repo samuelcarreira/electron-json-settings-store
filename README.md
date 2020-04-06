@@ -57,10 +57,10 @@ You only need to follow 4 simple steps to start using this module:
 2. Declare the JSON schema for the settings (check the [fastest-validator documentation](https://github.com/icebob/fastest-validator)) with the *default* values (the *default* key-values is **always required** for proper use of the module feature)
 ```
     const schema = {
-            size: { default: 25, type: 'number', positive: true, integer: true, min: 10, max: 40 },
-            darkMode: { default: false, type: 'boolean' },
-            name: { default: 'World', type: 'string' }
-        };
+        size: { default: 25, type: 'number', positive: true, integer: true, min: 10, max: 40 },
+        darkMode: { default: false, type: 'boolean' },
+        name: { default: 'World', type: 'string' }
+    };
 ```
 3. Declare the class with your preferred settings and initialize the library to read the values from the JSON file
 ```
@@ -92,6 +92,8 @@ You only need to follow 4 simple steps to start using this module:
 ## Main process
 - The use of this module on the main process is mandatory. The main process acts like a centralized hub and communicates to the renderer processes
 
+### ElectronJSONSettingsStoreMain(schema, options?)
+
 ### Class options (Main process)
 Property         | Type     | Default    | Description
 ---------------- | -------- | ---------- | ----------------------
@@ -99,11 +101,11 @@ Property         | Type     | Default    | Description
 `fileName`  	 | `string` | `config`   | Filename without extension.
 `filePath`  	 | `string` | `app.getPath('userData')`| Settings complete filepath. Storage file location. Don't specify this unless absolutely necessary! By default, it will pick the optimal location by adhering to system conventions.
 `prettyPrint`  	 | `boolean` | `true`   | Save formatted (pretty print) JSON file. Disable only  to save a few bytes/add some performance improvement.
-`validateFile`  	 | `boolean` | `true`   | Settings will be validated after file reading. Note: the file is read on startup and on changed content (if watch option is true). Prevents the injection of invalid or warmfull config.
-`validate`  	 | `boolean` | `true`   | Setting will be validated before is set. Prevents the injection of invalid or warmfull config.
+`validateFile`  	 | `boolean` | `true`   | Settings will be validated after file reading. Note: the file is read on startup and on changed content (if watch option is true). Prevents the injection of invalid or harmfull config.
+`validate`  	 | `boolean` | `true`   | Setting will be validated before is set. Prevents the injection of invalid or harmfull config.
 `defaultOnFailValidation`  	 | `boolean` | `true`   | Return default value defined on schema if check validation failed. Recommended to prevent store invalid config.
 `watchFile`  	 | `boolean` | `false`   | Watch File for changes. WARNING: Not recommended (feature in test).
-`defaultOnFailValidation`  	 | `boolean` | `false`   | Save settings before app quits. NOTE: uses sync writing process
+`writeBeforeQuit`  	 | `boolean` | `false`   | Save settings before app quits. NOTE: uses sync writing process
 
 ### init()
 > Startup routine (asynchronous file operation). 
@@ -271,6 +273,8 @@ Returns `true` if operation success, `false` if error or watcher not active
 - The use of this library in renderer process is optional but you cannot use this library only in renderer process. You must declare and init the library first in the main process.
 - You always need to call the init method before start using this library.
 - The majority of the methods are async functions who returns a promise because you need to wait for the main process to listen and reply to the IPC message.
+
+### ElectronJSONSettingsStoreRenderer(options?)
 
 ### Class options (Renderer process)
 Property         | Type     | Default    | Description
@@ -459,6 +463,10 @@ Returns `true` if the key exists
 ```
 > ### For more details please check this [documentation](https://github.com/icebob/fastest-validator))
 
+
+## File watching feature
+- Watches for file changes (like if the user edits the JSON file with an external editor) and read the new settings.
+- NOTE: This feature is in development, so be careful
 
 
 ## The `ElectronJSONSettingsStoreResult` object
