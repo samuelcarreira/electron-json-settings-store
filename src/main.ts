@@ -58,14 +58,6 @@ export interface ElectronJSONSettingsStoreMainOptions {
    */
   validate: boolean;
   /**
-   * Unsure dir on startup
-   * Note: at the moment I didn't write a optimized code to prevent errors
-   * so it's recommended to enable this setting
-   *
-   * @default true
-   */
-  mkdirOnStartup: boolean;
-  /**
    * Return default value defined on schema
    * if check validation failed
    * Recommended to prevent store invalid settings
@@ -89,7 +81,7 @@ export interface ElectronJSONSettingsStoreMainOptions {
   writeBeforeQuit: boolean;
 }
 
-// interface ElectronJSONSettingsStoreResult {
+// Interface ElectronJSONSettingsStoreResult {
 //   status: boolean;
 //   default: any;
 //   errors?: string | string[];
@@ -184,7 +176,6 @@ export default class ElectronJSONSettingsStoreMain {
       validateFile: true,
       validate: true,
       defaultOnFailValidation: true,
-      mkdirOnStartup: true,
       watchFile: false,
       writeBeforeQuit: false
     };
@@ -379,7 +370,7 @@ export default class ElectronJSONSettingsStoreMain {
     try {
       if (typeof key === 'string') {
         const setResult: ElectronJSONSettingsStoreResult = this._set(key, value);
-        // if (setResult !== true) {
+        // If (setResult !== true) {
         //   throw new Error(setResult.toString());
         // }
 
@@ -636,33 +627,24 @@ export default class ElectronJSONSettingsStoreMain {
     }
   }
 
+  /**
+   * Startup routine (synchronous file operation)
+   */
   public initSync(): void {
     try {
-      fs.mkdirSync(this.options.filePath, {recursive: true});
-    } catch (error) {
-      console.error(error);
-      throw new Error(
-        `Cannot create folder ’${this.options.filePath}’. Make sure that you have the right writing permissions.`
-      );
-    }
+      const ensureResult = this._ensureDirAndFileSync();
 
-    try {
+      if (!ensureResult) {
+        this._writeDefaultsAtInitSync();
+        return;
+      }
+
       const jsonData: string = fs.readFileSync(this.completeFilePath, 'utf8');
 
       const parsedResult = this._parseJSON(jsonData);
 
       if (parsedResult instanceof Error) {
-        console.log('defaults will be written');
-
-        this._setCachedSettings(this._defaults);
-
-        this._writeJSONFileSync(this.cachedSettings);
-
-        if (this.options.watchFile) {
-          this._watchFile();
-        }
-
-        this._hasInitialized = true;
+        this._writeDefaultsAtInitSync();
         return;
       }
 
@@ -678,61 +660,168 @@ export default class ElectronJSONSettingsStoreMain {
 
       this._hasInitialized = true;
     } catch (error) {
-      console.error(error);
+      console.log(error);
       throw error;
     }
   }
 
+  /**
+   * Startup routine (asynchronous file operation)
+   */
   public async init(): Promise<any> {
-    if (this.options.mkdirOnStartup) {
-      await fs.promises
-        .mkdir(this.options.filePath, {recursive: true})
-        .catch(() => {
-          throw new Error(
-            `Cannot create folder ’${this.options.filePath}’. Make sure that you have the right writing permissions.`
-          );
-        });
-    }
+    try {
+      const ensureResult = await this._ensureDirAndFile();
 
-    const jsonData: string = await fs.promises.readFile(this.completeFilePath, 'utf8');
+      if (!ensureResult) {
+        await this._writeDefaultsAtInit();
+        return;
+      }
 
-    const parsedResult = this._parseJSON(jsonData);
+      const jsonData = await fs.promises.readFile(this.completeFilePath, 'utf8');
 
-    if (parsedResult instanceof Error) {
-      console.log('defaults will be written');
+      const parsedResult = this._parseJSON(jsonData);
 
-      this._setCachedSettings(this._defaults);
+      if (parsedResult instanceof Error) {
+        await this._writeDefaultsAtInit();
+        return;
+      }
 
-      await this._writeJSONFile(this.cachedSettings);
+      this._setCachedSettings(parsedResult);
+
+      if (!this.options.validateFile) {
+        if (this.options.watchFile) {
+          this._watchFile();
+        }
+
+        this._hasInitialized = true;
+        return;
+      }
+
+      if (this.options.validateFile) {
+        await this._validateSettings(this.cachedSettings);
+      }
 
       if (this.options.watchFile) {
         this._watchFile();
       }
 
       this._hasInitialized = true;
-      return;
+    } catch (error) {
+      console.log(error);
+      throw error;
     }
+  }
 
-    this._setCachedSettings(parsedResult);
+  /**
+   * Write defaults at init, usefull when something
+   * goes wrong like the file doesn't exists or there
+   * are a JSON error (async fs write operation)
+   */
+  private async _writeDefaultsAtInit(): Promise<void> {
+    console.log('defaults will be written');
 
-    if (!this.options.validateFile) {
-      if (this.options.watchFile) {
-        this._watchFile();
-      }
+    this._setCachedSettings(this._defaults);
 
-      this._hasInitialized = true;
-      return;
-    }
-
-    if (this.options.validateFile) {
-      await this._validateSettings(this.cachedSettings);
-    }
+    await this._writeJSONFile(this.cachedSettings);
 
     if (this.options.watchFile) {
       this._watchFile();
     }
 
     this._hasInitialized = true;
+  }
+
+  /**
+   * Write defaults at init, usefull when something
+   * goes wrong like the file doesn't exists or there
+   * are a JSON error (sync fs write operation)
+   */
+  private _writeDefaultsAtInitSync(): void {
+    console.log('defaults will be written');
+
+    this._setCachedSettings(this._defaults);
+
+    this._writeJSONFileSync(this.cachedSettings);
+
+    if (this.options.watchFile) {
+      this._watchFile();
+    }
+
+    this._hasInitialized = true;
+  }
+
+  /**
+   * Ensure file has read and write permissions
+   * If not, try to create the folder and change
+   * the permissions (async fs operations)
+   * Returns true if all ok
+   */
+  private async _ensureDirAndFile(): Promise<boolean> {
+    try {
+      await fs.promises.access(this.completeFilePath, fs.constants.F_OK | fs.constants.W_OK);
+
+      return true;
+    } catch (error) {
+      // Not the most beautiful code :-(
+      if (error.code === 'EPERM') {
+        try {
+          await fs.promises.chmod(this.completeFilePath, 0o666);
+
+          return true;
+        } catch (error) {
+          console.log(error);
+          throw new Error(`No read or write permissions ’${this.completeFilePath}’. Make sure the file isn’t locked and that you have the right writing permissions.`);
+        }
+      } else if (error.code === 'ENOENT') {
+        try {
+          await fs.promises.mkdir(this.options.filePath, {recursive: true});
+
+          return false;
+        } catch (error) {
+          console.log(error);
+          throw new Error(`Cannot create folder ’${this.options.filePath}’. Make sure that you have the right writing permissions.`);
+        }
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Ensure file has read and write permissions
+   * If not, try to create the folder and change
+   * the permissions (sync fs operations)
+   * Returns true if all ok
+   */
+  private _ensureDirAndFileSync(): boolean {
+    try {
+      fs.accessSync(this.completeFilePath, fs.constants.F_OK | fs.constants.W_OK);
+
+      return true;
+    } catch (error) {
+      // Not the most beautiful code :-(
+      if (error.code === 'EPERM') {
+        try {
+          fs.chmodSync(this.completeFilePath, 0o666);
+
+          return true;
+        } catch (error) {
+          console.log(error);
+          throw new Error(`No read or write permissions ’${this.completeFilePath}’. Make sure the file isn’t locked and that you have the right writing permissions.`);
+        }
+      } else if (error.code === 'ENOENT') {
+        try {
+          fs.mkdirSync(this.options.filePath, {recursive: true});
+
+          return false;
+        } catch (error) {
+          console.log(error);
+          throw new Error(`Cannot create folder ’${this.options.filePath}’. Make sure that you have the right writing permissions.`);
+        }
+      } else {
+        throw error;
+      }
+    }
   }
 
   /**
@@ -919,7 +1008,8 @@ export default class ElectronJSONSettingsStoreMain {
     try {
       return JSON.parse(data);
     } catch (error) {
-      // Console.log(`Error parsing JSON: ${error}`);
+      const errorMessage: string = error.toString();
+      console.log(`Error parsing JSON: ${errorMessage}`);
       return error;
     }
   }

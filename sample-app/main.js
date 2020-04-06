@@ -91,10 +91,15 @@ function createSettingsWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
+  // async mode
   config.init()
     .then(() => {
       createWindow();
     })
+
+  // sync mode
+  // config.initSync();
+  // createWindow();
 });
 
 // Quit when all windows are closed.
@@ -112,7 +117,7 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow()
 });
 
-ipcMain.on('open-settings-window', ()=> {
+ipcMain.on('open-settings-window', () => {
   if (!settingsWindow) {
     createSettingsWindow();
   }

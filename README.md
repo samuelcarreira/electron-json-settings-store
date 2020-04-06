@@ -101,7 +101,6 @@ Property         | Type     | Default    | Description
 `prettyPrint`  	 | `boolean` | `true`   | Save formatted (pretty print) JSON file. Disable only  to save a few bytes/add some performance improvement.
 `validateFile`  	 | `boolean` | `true`   | Settings will be validated after file reading. Note: the file is read on startup and on changed content (if watch option is true). Prevents the injection of invalid or warmfull config.
 `validate`  	 | `boolean` | `true`   | Setting will be validated before is set. Prevents the injection of invalid or warmfull config.
-`mkdirOnStartup`  	 | `boolean` | `true`   | Unsure dir on startup. Note: at the moment I didn't write a optimized code to prevent errors so it's recommended to enable this setting.
 `defaultOnFailValidation`  	 | `boolean` | `true`   | Return default value defined on schema if check validation failed. Recommended to prevent store invalid config.
 `watchFile`  	 | `boolean` | `false`   | Watch File for changes. WARNING: Not recommended (feature in test).
 `defaultOnFailValidation`  	 | `boolean` | `false`   | Save settings before app quits. NOTE: uses sync writing process

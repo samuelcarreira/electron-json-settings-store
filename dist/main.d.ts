@@ -51,14 +51,6 @@ export interface ElectronJSONSettingsStoreMainOptions {
      */
     validate: boolean;
     /**
-     * Unsure dir on startup
-     * Note: at the moment I didn't write a optimized code to prevent errors
-     * so it's recommended to enable this setting
-     *
-     * @default true
-     */
-    mkdirOnStartup: boolean;
-    /**
      * Return default value defined on schema
      * if check validation failed
      * Recommended to prevent store invalid settings
@@ -286,8 +278,40 @@ export default class ElectronJSONSettingsStoreMain {
      * watcher not active
      */
     disableFileWatcher(): boolean;
+    /**
+     * Startup routine (synchronous file operation)
+     */
     initSync(): void;
+    /**
+     * Startup routine (asynchronous file operation)
+     */
     init(): Promise<any>;
+    /**
+     * Write defaults at init, usefull when something
+     * goes wrong like the file doesn't exists or there
+     * are a JSON error (async fs write operation)
+     */
+    private _writeDefaultsAtInit;
+    /**
+     * Write defaults at init, usefull when something
+     * goes wrong like the file doesn't exists or there
+     * are a JSON error (sync fs write operation)
+     */
+    private _writeDefaultsAtInitSync;
+    /**
+     * Ensure file has read and write permissions
+     * If not, try to create the folder and change
+     * the permissions (async fs operations)
+     * Returns true if all ok
+     */
+    private _ensureDirAndFile;
+    /**
+     * Ensure file has read and write permissions
+     * If not, try to create the folder and change
+     * the permissions (sync fs operations)
+     * Returns true if all ok
+     */
+    private _ensureDirAndFileSync;
     /**
      * Set to cached settings and send to other processes (renderer) via
      * IPC channel if settings are new (prevent polute IPC channel with unecessary

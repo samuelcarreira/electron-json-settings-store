@@ -11,7 +11,7 @@ const electron_1 = require("electron");
 const fs = require("fs");
 const path = require("path");
 const Validator = require("fastest-validator");
-// interface ElectronJSONSettingsStoreResult {
+// Interface ElectronJSONSettingsStoreResult {
 //   status: boolean;
 //   default: any;
 //   errors?: string | string[];
@@ -63,7 +63,6 @@ class ElectronJSONSettingsStoreMain {
             validateFile: true,
             validate: true,
             defaultOnFailValidation: true,
-            mkdirOnStartup: true,
             watchFile: false,
             writeBeforeQuit: false
         };
@@ -214,7 +213,7 @@ class ElectronJSONSettingsStoreMain {
         try {
             if (typeof key === 'string') {
                 const setResult = this._set(key, value);
-                // if (setResult !== true) {
+                // If (setResult !== true) {
                 //   throw new Error(setResult.toString());
                 // }
                 return setResult;
@@ -436,25 +435,20 @@ class ElectronJSONSettingsStoreMain {
             return false;
         }
     }
+    /**
+     * Startup routine (synchronous file operation)
+     */
     initSync() {
         try {
-            fs.mkdirSync(this.options.filePath, { recursive: true });
-        }
-        catch (error) {
-            console.error(error);
-            throw new Error(`Cannot create folder ’${this.options.filePath}’. Make sure that you have the right writing permissions.`);
-        }
-        try {
+            const ensureResult = this._ensureDirAndFileSync();
+            if (!ensureResult) {
+                this._writeDefaultsAtInitSync();
+                return;
+            }
             const jsonData = fs.readFileSync(this.completeFilePath, 'utf8');
             const parsedResult = this._parseJSON(jsonData);
             if (parsedResult instanceof Error) {
-                console.log('defaults will be written');
-                this._setCachedSettings(this._defaults);
-                this._writeJSONFileSync(this.cachedSettings);
-                if (this.options.watchFile) {
-                    this._watchFile();
-                }
-                this._hasInitialized = true;
+                this._writeDefaultsAtInitSync();
                 return;
             }
             this._setCachedSettings(parsedResult);
@@ -467,45 +461,150 @@ class ElectronJSONSettingsStoreMain {
             this._hasInitialized = true;
         }
         catch (error) {
-            console.error(error);
+            console.log(error);
             throw error;
         }
     }
+    /**
+     * Startup routine (asynchronous file operation)
+     */
     async init() {
-        if (this.options.mkdirOnStartup) {
-            await fs.promises
-                .mkdir(this.options.filePath, { recursive: true })
-                .catch(() => {
-                throw new Error(`Cannot create folder ’${this.options.filePath}’. Make sure that you have the right writing permissions.`);
-            });
-        }
-        const jsonData = await fs.promises.readFile(this.completeFilePath, 'utf8');
-        const parsedResult = this._parseJSON(jsonData);
-        if (parsedResult instanceof Error) {
-            console.log('defaults will be written');
-            this._setCachedSettings(this._defaults);
-            await this._writeJSONFile(this.cachedSettings);
+        try {
+            const ensureResult = await this._ensureDirAndFile();
+            if (!ensureResult) {
+                await this._writeDefaultsAtInit();
+                return;
+            }
+            const jsonData = await fs.promises.readFile(this.completeFilePath, 'utf8');
+            const parsedResult = this._parseJSON(jsonData);
+            if (parsedResult instanceof Error) {
+                await this._writeDefaultsAtInit();
+                return;
+            }
+            this._setCachedSettings(parsedResult);
+            if (!this.options.validateFile) {
+                if (this.options.watchFile) {
+                    this._watchFile();
+                }
+                this._hasInitialized = true;
+                return;
+            }
+            if (this.options.validateFile) {
+                await this._validateSettings(this.cachedSettings);
+            }
             if (this.options.watchFile) {
                 this._watchFile();
             }
             this._hasInitialized = true;
-            return;
         }
-        this._setCachedSettings(parsedResult);
-        if (!this.options.validateFile) {
-            if (this.options.watchFile) {
-                this._watchFile();
-            }
-            this._hasInitialized = true;
-            return;
+        catch (error) {
+            console.log(error);
+            throw error;
         }
-        if (this.options.validateFile) {
-            await this._validateSettings(this.cachedSettings);
-        }
+    }
+    /**
+     * Write defaults at init, usefull when something
+     * goes wrong like the file doesn't exists or there
+     * are a JSON error (async fs write operation)
+     */
+    async _writeDefaultsAtInit() {
+        console.log('defaults will be written');
+        this._setCachedSettings(this._defaults);
+        await this._writeJSONFile(this.cachedSettings);
         if (this.options.watchFile) {
             this._watchFile();
         }
         this._hasInitialized = true;
+    }
+    /**
+     * Write defaults at init, usefull when something
+     * goes wrong like the file doesn't exists or there
+     * are a JSON error (sync fs write operation)
+     */
+    _writeDefaultsAtInitSync() {
+        console.log('defaults will be written');
+        this._setCachedSettings(this._defaults);
+        this._writeJSONFileSync(this.cachedSettings);
+        if (this.options.watchFile) {
+            this._watchFile();
+        }
+        this._hasInitialized = true;
+    }
+    /**
+     * Ensure file has read and write permissions
+     * If not, try to create the folder and change
+     * the permissions (async fs operations)
+     * Returns true if all ok
+     */
+    async _ensureDirAndFile() {
+        try {
+            await fs.promises.access(this.completeFilePath, fs.constants.F_OK | fs.constants.W_OK);
+            return true;
+        }
+        catch (error) {
+            // Not the most beautiful code :-(
+            if (error.code === 'EPERM') {
+                try {
+                    await fs.promises.chmod(this.completeFilePath, 0o666);
+                    return true;
+                }
+                catch (error) {
+                    console.log(error);
+                    throw new Error(`No read or write permissions ’${this.completeFilePath}’. Make sure the file isn’t locked and that you have the right writing permissions.`);
+                }
+            }
+            else if (error.code === 'ENOENT') {
+                try {
+                    await fs.promises.mkdir(this.options.filePath, { recursive: true });
+                    return false;
+                }
+                catch (error) {
+                    console.log(error);
+                    throw new Error(`Cannot create folder ’${this.options.filePath}’. Make sure that you have the right writing permissions.`);
+                }
+            }
+            else {
+                throw error;
+            }
+        }
+    }
+    /**
+     * Ensure file has read and write permissions
+     * If not, try to create the folder and change
+     * the permissions (sync fs operations)
+     * Returns true if all ok
+     */
+    _ensureDirAndFileSync() {
+        try {
+            fs.accessSync(this.completeFilePath, fs.constants.F_OK | fs.constants.W_OK);
+            return true;
+        }
+        catch (error) {
+            // Not the most beautiful code :-(
+            if (error.code === 'EPERM') {
+                try {
+                    fs.chmodSync(this.completeFilePath, 0o666);
+                    return true;
+                }
+                catch (error) {
+                    console.log(error);
+                    throw new Error(`No read or write permissions ’${this.completeFilePath}’. Make sure the file isn’t locked and that you have the right writing permissions.`);
+                }
+            }
+            else if (error.code === 'ENOENT') {
+                try {
+                    fs.mkdirSync(this.options.filePath, { recursive: true });
+                    return false;
+                }
+                catch (error) {
+                    console.log(error);
+                    throw new Error(`Cannot create folder ’${this.options.filePath}’. Make sure that you have the right writing permissions.`);
+                }
+            }
+            else {
+                throw error;
+            }
+        }
     }
     /**
      * Set to cached settings and send to other processes (renderer) via
@@ -662,7 +761,8 @@ class ElectronJSONSettingsStoreMain {
             return JSON.parse(data);
         }
         catch (error) {
-            // Console.log(`Error parsing JSON: ${error}`);
+            const errorMessage = error.toString();
+            console.log(`Error parsing JSON: ${errorMessage}`);
             return error;
         }
     }
