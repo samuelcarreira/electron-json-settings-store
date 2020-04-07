@@ -108,25 +108,25 @@ Property         | Type     | Default    | Description
 `writeBeforeQuit`  	 | `boolean` | `false`   | Save settings before app quits. NOTE: uses sync writing process
 
 * [init()](#init)
-* [initSync()](#initSync)
-* [get(key)](#get(key))
-* [getAll](#getAll)
-* [getDefaults](#getDefaults)
-* [getDefault(key)](#getDefault(key))
-* [getCompleteFilePath](#getCompleteFilePath)
-* [validate(key, value)](#validate(key,-value))
-* [set(key, value)](#set(key,-value))
-* [setAll(data)](#setAll(data))
-* [setAndWriteSync(key, value)](#setAndWriteSync(key,-value))
-* [setAndWrite(key, value) *async*](#setAndWrite(key,-value))
-* [writeSync()](#writeSync)
+* [initSync()](#initsync)
+* [get(key)](#getkey)
+* [getAll](#getall)
+* [getDefaults](#getdefaults)
+* [getDefault(key)](#getdefaultkey)
+* [getCompleteFilePath](#getcompletefilepath)
+* [validate(key, value)](#validatekeyvalue)
+* [set(key, value)](#setkeyvalue)
+* [setAll(data)](#setalldata)
+* [setAndWriteSync(key, value)](#setandwritesynckeyvalue)
+* [setAndWrite(key, value) *async*](#setandwritekeyvalue)
+* [writeSync()](#writesync)
 * [write() *async*](#write)
-* [unset(key)](#unset(key))
-* [has(key)](#has(key))
+* [unset(key)](#unsetkey)
+* [has(key)](#haskey)
 * [reset()](#reset)
-* [resetAndWriteSync()](#resetAndWriteSync)
-* [resetAndWrite() *async*](#resetAndWrite-async)
-* [disableFileWatcher()](#disableFileWatcher)
+* [resetAndWriteSync()](#resetandwritesync)
+* [resetAndWrite() *async*](#resetandwrite-async)
+* [disableFileWatcher()](#disablefilewatcher)
 
 ### init()
 > Startup routine (asynchronous file operation). 
@@ -325,27 +325,25 @@ If you enable `emitEventOnUpdated` option, an event is emitted when settings are
         // deal with the new cached settings object
 	});
 ```
-
-* #### init()
-* #### initSync()
-* #### get(key)
-* #### getAll
-* #### getDefaults
-* #### getDefault(key)
-* #### validate(key, value) *async*
-* #### set(key, value) *async*
-* #### setAll(data) *async*
-* #### setAndWriteSync(key, value) *async*
-* #### setAndWrite(key, value) *async*
-* #### writeSync() *async*
-* #### write() *async*
-* #### unset(key) *async*
-* #### disableFileWatcher() *async*
-* #### has(key)
-* #### reset() *async*
-* #### resetAndWriteSync() *async*
-* #### resetAndWrite() *async*
-
+* [init()](#init-2)
+* [initSync()](#initsync-2)
+* [get(key)](#getkey-2)
+* [getAll](#getall-2)
+* [getDefaults](#getdefaults-2)
+* [getDefault(key)](#getdefaultkey-2)
+* [validate(key, value) *async*](#validatekey-value-async-1)
+* [set(key, value) *async*](#setkeyvalue-2)
+* [setAll(data) *async*](#setalldata-async-1)
+* [setAndWriteSync(key, value) *async*](#setandwritesynckey-value-async-1)
+* [setAndWrite(key, value) *async*](#setandwritekeyvalue-async-2)
+* [writeSync() *async*](#writesync-async-1)
+* [write() *async*](#write-async-2)
+* [unset(key) *async*](#unsetkey-async-1)
+* [has(key)](#haskey-2)
+* [reset() *async*](#reset-async-1)
+* [resetAndWriteSync() *async*](#resetandwritesync-async-1)
+* [resetAndWrite() *async*](#resetandwritesync-async-1)
+* [disableFileWatcher() *async*](#disablefilewatcher-async-1)
 
 ### init()
 > Startup routine (async). **Recommended method** to not block the renderer process
