@@ -1,7 +1,7 @@
 {
   "name": "electron-json-settings-store",
   "productName": "Electron JSON Settings Store",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "Persistent user settings for Electron apps with async file reading, built-in JSON schema validation and RAM cached settings",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -38,7 +38,7 @@
   },
   "homepage": "https://github.com/samuelcarreira/electron-json-settings-store#readme",
   "devDependencies": {
-    "electron": "^8.2.0",
+    "electron": "^8.2.1",
     "typescript": "^3.8.3",
     "xo": "^0.28.3"
   },

@@ -25,7 +25,7 @@ const schema = {
   name: { type: 'string', default: 'World' }
 };
 
-const config = new ElectronJSONSettingsStoreMain(schema, { filePath: __dirname, validateFile: true, defaultOnFailValidation: false, watchFile: false, saveBeforeQuit: true });
+const config = new ElectronJSONSettingsStoreMain(schema, { filePath: __dirname, validateFile: true, defaultOnFailValidation: false, watchFile: false, writeBeforeQuit: true });
 
 
 function createWindow() {
@@ -134,4 +134,5 @@ setTimeout(() => {
 
   // change setting
   config.set('name', 'you');
+
 }, 2000);

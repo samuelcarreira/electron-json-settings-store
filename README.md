@@ -1,6 +1,6 @@
 # electron-json-settings-store
 
-Persistent user settings for Electron apps with async file reading, built-in JSON schema validation and RAM cached settings
+Persistent user settings for Electron apps with asynchronous file reading, built-in JSON schema validation and RAM cached settings for immediate accesss to the stored values.
 
 *WARNING:* This module is on an early development stage, please be cautious and start an issue if you find any bugs (I promise to continue to update this module as fast as I can)
 
@@ -64,7 +64,7 @@ You only need to follow 4 simple steps to start using this module:
 ```
 3. Declare the class with your preferred settings and initialize the library to read the values from the JSON file
 ```
-    const config = new ElectronJSONSettingsStoreMain(schema, { watchFile: false, saveBeforeQuit: true });
+    const config = new ElectronJSONSettingsStoreMain(schema, { watchFile: false, writeBeforeQuit: true });
 
     // sync mode is easy to use, but experience programmers can use async mode
     config.initSync();
@@ -100,12 +100,33 @@ Property         | Type     | Default    | Description
 `fileExtension`  | `string` | `json`     | Extension of the config file.
 `fileName`  	 | `string` | `config`   | Filename without extension.
 `filePath`  	 | `string` | `app.getPath('userData')`| Settings complete filepath. Storage file location. Don't specify this unless absolutely necessary! By default, it will pick the optimal location by adhering to system conventions.
-`prettyPrint`  	 | `boolean` | `true`   | Save formatted (pretty print) JSON file. Disable only  to save a few bytes/add some performance improvement.
-`validateFile`  	 | `boolean` | `true`   | Settings will be validated after file reading. Note: the file is read on startup and on changed content (if watch option is true). Prevents the injection of invalid or harmfull config.
+`prettyPrint`  	 | `boolean` | `true`   | Save formatted (pretty print) JSON file. Disable only to save a few bytes/add some performance improvement.
+`validateFile`  	 | `boolean` | `true`   | Settings will be validated after file reading. Note: the file is read on startup and on changed content (if `watchFile` option is true). Prevents the injection of invalid or harmfull config.
 `validate`  	 | `boolean` | `true`   | Setting will be validated before is set. Prevents the injection of invalid or harmfull config.
 `defaultOnFailValidation`  	 | `boolean` | `true`   | Return default value defined on schema if check validation failed. Recommended to prevent store invalid config.
 `watchFile`  	 | `boolean` | `false`   | Watch File for changes. WARNING: Not recommended (feature in test).
 `writeBeforeQuit`  	 | `boolean` | `false`   | Save settings before app quits. NOTE: uses sync writing process
+
+* [init()](#init)
+* [initSync()](#initSync)
+* [get(key)](#get(key))
+* [getAll](#getAll)
+* [getDefaults](#getDefaults)
+* [getDefault(key)](#getDefault(key))
+* [getCompleteFilePath](#getCompleteFilePath)
+* [validate(key, value)](#validate(key,-value))
+* [set(key, value)](#set(key,-value))
+* [setAll(data)](#setAll(data))
+* [setAndWriteSync(key, value)](#setAndWriteSync(key,-value))
+* [setAndWrite(key, value) *async*](#setAndWrite(key,-value))
+* [writeSync()](#writeSync)
+* [write() *async*](#write)
+* [unset(key)](#unset(key))
+* [has(key)](#has(key))
+* [reset()](#reset)
+* [resetAndWriteSync()](#resetAndWriteSync)
+* [resetAndWrite() *async*](#resetAndWrite-async)
+* [disableFileWatcher()](#disableFileWatcher)
 
 ### init()
 > Startup routine (asynchronous file operation). 
@@ -181,9 +202,22 @@ Returns the custom *ElectronJSONSettingsStoreResult* object.
 ```
     // set a single key
     config.set('debug', true);
+    
     // set multiple keys at once
     config.set({debug: true, x: 5, y: -9});
 
+    // succefull operation ElectronJSONSettingsStoreResult returned object
+    config.set('size', 15);
+    > {status: true, default: 25, errors: false}
+
+    // if validate option is true
+    config.set('size', 50);
+    > {status: false, default: 25, errors: ["The 'size' field must be less than or equal to 40."]}
+
+    // if validate option is true and defaultOnFailValidation option is false (applies default)
+    config.set('size', 50);
+    > {status: true, default: 25, errors: 'Default setting was applied'}
+    
 ```
 
 ### setAll(data)
@@ -281,14 +315,6 @@ Property         | Type     | Default    | Description
 ---------------- | -------- | ---------- | ----------------------
 `emitEventOnUpdated` | `boolean` | `false` | Emits event when settings is updated. Disable if you don't need to 'watch' settings change (can lead to a small performance improvment - less event listeners).
 
-### init()
-> Startup routine (async). **Recommended method** to not block the renderer process
-
-### initSync()
-> Startup routine (sync). WARNING: Sending a synchronous message will block the whole renderer process until the reply is received, so use this method only as a last resort. It's much better to use the asynchronous version
-
-
-
 ## Listen the `updated` event
 If you enable `emitEventOnUpdated` option, an event is emitted when settings are updated. This option is a renderer process exclusive. You can listen to this event by using this code:
 ```
@@ -299,6 +325,34 @@ If you enable `emitEventOnUpdated` option, an event is emitted when settings are
         // deal with the new cached settings object
 	});
 ```
+
+* #### init()
+* #### initSync()
+* #### get(key)
+* #### getAll
+* #### getDefaults
+* #### getDefault(key)
+* #### validate(key, value) *async*
+* #### set(key, value) *async*
+* #### setAll(data) *async*
+* #### setAndWriteSync(key, value) *async*
+* #### setAndWrite(key, value) *async*
+* #### writeSync() *async*
+* #### write() *async*
+* #### unset(key) *async*
+* #### disableFileWatcher() *async*
+* #### has(key)
+* #### reset() *async*
+* #### resetAndWriteSync() *async*
+* #### resetAndWrite() *async*
+
+
+### init()
+> Startup routine (async). **Recommended method** to not block the renderer process
+
+### initSync()
+> Startup routine (sync). WARNING: Sending a synchronous message will block the whole renderer process until the reply is received, so use this method only as a last resort. It's much better to use the asynchronous version
+
 
 ### get(key)
 > Get setting from cache. Return `undefined` if key was not found on cache and schema. WARNING: the JSON file was not read (the value is fectched from cache)
@@ -352,6 +406,14 @@ Returns the custom *ElectronJSONSettingsStoreResult* object.
     await config.set('debug', true);
     // set multiple keys at once
     await config.set({debug: true, x: 5, y: -9});
+
+    // if validate option is true
+    await config.set('size', 50);
+    > {status: false, default: 25, errors: ["The 'size' field must be less than or equal to 40."]}
+
+    // if validate option is true and defaultOnFailValidation option is false (applies default)
+    await config.set('size', 50);
+    > { status: true, default: 25, errors: 'Default setting was applied' }
 
 ```
 
