@@ -17,7 +17,8 @@ const { ElectronJSONSettingsStoreMain } = require('../dist/index');
 let mainWindow;
 let settingsWindow;
 
-app.allowRendererProcessReuse = true; // just to disable console deprecated warning
+// https://github.com/electron/electron/issues/18397
+// app.allowRendererProcessReuse = true; // just to disable console deprecated warning on electron v8 not needed on v9 because it's the default value
 
 const schema = {
   size: { type: 'number', positive: true, integer: true, default: 25, min: 10, max: 40 },
@@ -36,7 +37,9 @@ function createWindow() {
     show: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      devTools: true
+      devTools: true,
+      contextIsolation: true,
+      enableRemoteModule: false
     }
   });
 
@@ -74,6 +77,8 @@ function createSettingsWindow() {
     modal: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload_2.js'),
+      contextIsolation: true,
+      enableRemoteModule: false,
       devTools: true
     }
   });
@@ -127,12 +132,14 @@ ipcMain.on('open-settings-window', () => {
 // code. You can also put them in separate files and require them here.
 
 setTimeout(() => {
-  console.log(config.getDefault('name'));
+  console.log(`The default value of name key is: ${config.getDefault('name')}`);
 
   // test invalid setting
+  console.log('Validate `size` key with invalid value (55) ->');
   console.log(config.validate('size', 55));
 
   // change setting
+  console.log('Change name from `World` to `you`');
   config.set('name', 'you');
 
 }, 2000);

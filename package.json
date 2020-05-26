@@ -38,15 +38,15 @@
   },
   "homepage": "https://github.com/samuelcarreira/electron-json-settings-store#readme",
   "devDependencies": {
-    "electron": "^8.2.1",
-    "typescript": "^3.8.3",
-    "xo": "^0.28.3"
+    "electron": "^9.0.0",
+    "typescript": "^3.9.3",
+    "xo": "^0.30.0"
   },
   "engines": {
     "node": ">=12.0"
   },
   "dependencies": {
-    "fastest-validator": "^1.2.0"
+    "fastest-validator": "^1.4.1"
   },
   "files": [
     "dist/**/*"
