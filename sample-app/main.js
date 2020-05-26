@@ -38,7 +38,7 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       devTools: true,
-      contextIsolation: true,
+      contextIsolation: true, // From Electron 12, it will be enabled by default https://github.com/electron/electron/blob/master/docs/tutorial/context-isolation.md
       enableRemoteModule: false
     }
   });

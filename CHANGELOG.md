@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Update sample app to electron v9.0.0
 - Add security policies to disable warnings on renderer window
+- Updated fastest-validator library (v1.4.1)
 
 
 ## [1.0.0-beta.2] - 2020-04-07
