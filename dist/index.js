@@ -7,7 +7,6 @@
  * Copyright (c) 2020 [Samuel Carreira]
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ValidationError = void 0;
 class ValidationError extends Error {
     constructor(errors, defaultValue) {
         super(errors);
@@ -19,9 +18,9 @@ class ValidationError extends Error {
 }
 exports.ValidationError = ValidationError;
 var main_1 = require("./main");
-Object.defineProperty(exports, "ElectronJSONSettingsStoreMain", { enumerable: true, get: function () { return main_1.default; } });
+exports.ElectronJSONSettingsStoreMain = main_1.default;
 var renderer_1 = require("./renderer");
-Object.defineProperty(exports, "ElectronJSONSettingsStoreRenderer", { enumerable: true, get: function () { return renderer_1.default; } });
+exports.ElectronJSONSettingsStoreRenderer = renderer_1.default;
 // module.exports = (process.type === 'browser' ? require('./main') : require('./renderer'));
 /**
  * Checks if current process Node version is lower

@@ -53,6 +53,8 @@ You only need to follow 4 simple steps to start using this module:
 1. Import the library in the **main process**
 ```
     const { ElectronJSONSettingsStoreMain } = require('electron-json-settings-store');
+    // or
+    import {ElectronJSONSettingsStoreMain, ElectronJSONSettingsStoreMainOptions} from 'electron-json-settings-store';
 ```
 2. Declare the JSON schema for the settings (check the [fastest-validator documentation](https://github.com/icebob/fastest-validator)) with the *default* values (the *default* key-values is **always required** for proper use of the module feature)
 ```
@@ -131,18 +133,19 @@ Property         | Type     | Default    | Description
 ### init()
 > Startup routine (asynchronous file operation). 
 ```
-    config.initSync();
-    console.log(config.getAll);
+   config.init().then(()=> {
+        console.log(config.getAll);
+    } )
+    // or
+    await config.init();
 ```
 
 ### initSync()
 > Startup routine (synchronous file operation)
 ```
-    config.init().then(()=> {
-        console.log(config.getAll);
-    } )
-    // or
-    await config.init();
+    config.initSync();
+    console.log(config.getAll);
+    
 ```
 
 ### get(key)

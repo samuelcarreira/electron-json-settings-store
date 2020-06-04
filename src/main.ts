@@ -19,13 +19,13 @@ export interface ElectronJSONSettingsStoreMainOptions {
    *
    * @default 'json'
    */
-  fileExtension: string;
+  fileExtension?: string;
   /**
    * Filename without extension
    *
    * @default 'config'
    */
-  fileName: string;
+  fileName?: string;
   /**
    * Settings complete filepath
    * Storage file location. Don't specify this unless absolutely necessary! By default,
@@ -33,14 +33,14 @@ export interface ElectronJSONSettingsStoreMainOptions {
    *
    * @default app.getPath('userData')
    */
-  filePath: string;
+  filePath?: string;
   /**
    * Save formatted (pretty print) JSON file
    *
    * Disable only  to save a few bytes/add some performance improvement
    * @default true
    */
-  prettyPrint: boolean;
+  prettyPrint?: boolean;
   /**
    * Settings will be validated after file reading
    * Note: the file is read on startup and on changed
@@ -49,14 +49,14 @@ export interface ElectronJSONSettingsStoreMainOptions {
    *
    * @default true
    */
-  validateFile: boolean;
+  validateFile?: boolean;
   /**
    * Setting will be validated before is set
    * Prevents the injection of invalid or harmfull settings
    *
    * @default true
    */
-  validate: boolean;
+  validate?: boolean;
   /**
    * Return default value defined on schema
    * if check validation failed
@@ -64,21 +64,21 @@ export interface ElectronJSONSettingsStoreMainOptions {
    *
    * @default true
    */
-  defaultOnFailValidation: boolean;
+  defaultOnFailValidation?: boolean;
   /**
    * Watch File for changes
    * WARNING: Not recommended (feature in test)
    *
    * @default false
    */
-  watchFile: boolean;
+  watchFile?: boolean;
   /**
    * Save settings before app quits
    * NOTE: uses sync writing process
    *
    * @default false
    */
-  writeBeforeQuit: boolean;
+  writeBeforeQuit?: boolean;
 }
 
 // Interface ElectronJSONSettingsStoreResult {
@@ -156,7 +156,7 @@ export default class ElectronJSONSettingsStoreMain {
    * @param schema fastValidator schema
    * @param options options
    */
-  constructor(schema: object, options: ElectronJSONSettingsStoreMainOptions) {
+  constructor(schema: object, options?: ElectronJSONSettingsStoreMainOptions) {
     if (!this._checkProcessType('browser')) {
       throw new Error('This module can only be used on the main process. Use the `ElectronJSONSettingsStoreRenderer` on renderer processes.');
     }
@@ -182,10 +182,13 @@ export default class ElectronJSONSettingsStoreMain {
 
     this.options = {...defaultOptions, ...options};
 
-    this.completeFilePath = path.resolve(
-      this.options.filePath,
-      `${this.options.fileName}.${this.options.fileExtension}`
-    );
+    if (this.options.filePath === undefined) {
+      throw new Error('Cannot get the default userData path');
+    }
+
+    // @ts-ignore
+    const fileNameWithExtension = `${this.options.fileName}.${this.options.fileExtension}`;
+    this.completeFilePath = path.resolve(this.options.filePath, fileNameWithExtension);
 
     // Const v = new validator.default();
     // @ts-ignore
@@ -206,7 +209,10 @@ export default class ElectronJSONSettingsStoreMain {
       this._writeBeforeQuit();
     }
 
-    this._handleIpc();
+    this._handleIpc()
+      .catch(error => {
+        throw new Error(`Cannot handle IPC ${error.toString()}`);
+      });
   }
 
   /**
@@ -774,6 +780,10 @@ export default class ElectronJSONSettingsStoreMain {
         }
       } else if (error.code === 'ENOENT') {
         try {
+          if (!this.options.filePath) {
+            throw new Error('Invalid filePath');
+          }
+
           await fs.promises.mkdir(this.options.filePath, {recursive: true});
 
           return false;
@@ -811,6 +821,10 @@ export default class ElectronJSONSettingsStoreMain {
         }
       } else if (error.code === 'ENOENT') {
         try {
+          if (!this.options.filePath) {
+            throw new Error('Invalid filePath');
+          }
+
           fs.mkdirSync(this.options.filePath, {recursive: true});
 
           return false;

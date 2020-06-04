@@ -12,13 +12,13 @@ export interface ElectronJSONSettingsStoreMainOptions {
      *
      * @default 'json'
      */
-    fileExtension: string;
+    fileExtension?: string;
     /**
      * Filename without extension
      *
      * @default 'config'
      */
-    fileName: string;
+    fileName?: string;
     /**
      * Settings complete filepath
      * Storage file location. Don't specify this unless absolutely necessary! By default,
@@ -26,14 +26,14 @@ export interface ElectronJSONSettingsStoreMainOptions {
      *
      * @default app.getPath('userData')
      */
-    filePath: string;
+    filePath?: string;
     /**
      * Save formatted (pretty print) JSON file
      *
      * Disable only  to save a few bytes/add some performance improvement
      * @default true
      */
-    prettyPrint: boolean;
+    prettyPrint?: boolean;
     /**
      * Settings will be validated after file reading
      * Note: the file is read on startup and on changed
@@ -42,14 +42,14 @@ export interface ElectronJSONSettingsStoreMainOptions {
      *
      * @default true
      */
-    validateFile: boolean;
+    validateFile?: boolean;
     /**
      * Setting will be validated before is set
      * Prevents the injection of invalid or harmfull settings
      *
      * @default true
      */
-    validate: boolean;
+    validate?: boolean;
     /**
      * Return default value defined on schema
      * if check validation failed
@@ -57,21 +57,21 @@ export interface ElectronJSONSettingsStoreMainOptions {
      *
      * @default true
      */
-    defaultOnFailValidation: boolean;
+    defaultOnFailValidation?: boolean;
     /**
      * Watch File for changes
      * WARNING: Not recommended (feature in test)
      *
      * @default false
      */
-    watchFile: boolean;
+    watchFile?: boolean;
     /**
      * Save settings before app quits
      * NOTE: uses sync writing process
      *
      * @default false
      */
-    writeBeforeQuit: boolean;
+    writeBeforeQuit?: boolean;
 }
 export default class ElectronJSONSettingsStoreMain {
     /**
@@ -142,7 +142,7 @@ export default class ElectronJSONSettingsStoreMain {
      * @param schema fastValidator schema
      * @param options options
      */
-    constructor(schema: object, options: ElectronJSONSettingsStoreMainOptions);
+    constructor(schema: object, options?: ElectronJSONSettingsStoreMainOptions);
     /**
      * Get complete settings file path
      * @example

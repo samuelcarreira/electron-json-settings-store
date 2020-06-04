@@ -48,8 +48,8 @@ export interface ElectronJSONSettingsStoreResult {
   errors: boolean | string | string[];
 }
 
-export {default as ElectronJSONSettingsStoreMain} from './main';
-export {default as ElectronJSONSettingsStoreRenderer} from './renderer';
+export {default as ElectronJSONSettingsStoreMain, ElectronJSONSettingsStoreMainOptions} from './main';
+export {default as ElectronJSONSettingsStoreRenderer, ElectronJSONSettingsStoreRendererOptions} from './renderer';
 // module.exports = (process.type === 'browser' ? require('./main') : require('./renderer'));
 
 /**

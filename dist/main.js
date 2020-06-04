@@ -67,6 +67,9 @@ class ElectronJSONSettingsStoreMain {
             writeBeforeQuit: false
         };
         this.options = { ...defaultOptions, ...options };
+        if (this.options.filePath === undefined) {
+            throw new Error('Cannot get the default userData path');
+        }
         this.completeFilePath = path.resolve(this.options.filePath, `${this.options.fileName}.${this.options.fileExtension}`);
         // Const v = new validator.default();
         // @ts-ignore
@@ -555,6 +558,9 @@ class ElectronJSONSettingsStoreMain {
             }
             else if (error.code === 'ENOENT') {
                 try {
+                    if (!this.options.filePath) {
+                        throw new Error('Invalid filePath');
+                    }
                     await fs.promises.mkdir(this.options.filePath, { recursive: true });
                     return false;
                 }
@@ -593,6 +599,9 @@ class ElectronJSONSettingsStoreMain {
             }
             else if (error.code === 'ENOENT') {
                 try {
+                    if (!this.options.filePath) {
+                        throw new Error('Invalid filePath');
+                    }
                     fs.mkdirSync(this.options.filePath, { recursive: true });
                     return false;
                 }

@@ -16,7 +16,7 @@ export interface ElectronJSONSettingsStoreRendererOptions {
      *
      * @default false
      */
-    emitEventOnUpdated: boolean;
+    emitEventOnUpdated?: boolean;
 }
 export default class ElectronJSONSettingsStoreRenderer extends EventEmitter {
     /**
@@ -43,7 +43,7 @@ export default class ElectronJSONSettingsStoreRenderer extends EventEmitter {
      * Electron JSON Settings Store (Renderer)
      * @param options options
      */
-    constructor(options: ElectronJSONSettingsStoreRendererOptions);
+    constructor(options?: ElectronJSONSettingsStoreRendererOptions);
     /**
      * Validate key with schema
      * (this is a async function because I don't want to require
