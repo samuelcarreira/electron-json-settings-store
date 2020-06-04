@@ -8,6 +8,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
+    "publish": "npm publish",
     "lint": "xo",
     "test-electron": "npm run build && electron ./sample-app/main.js"
   },
@@ -39,8 +40,8 @@
   "homepage": "https://github.com/samuelcarreira/electron-json-settings-store#readme",
   "devDependencies": {
     "electron": "^9.0.2",
-    "typescript": "^3.9.3",
-    "xo": "^0.30.0"
+    "typescript": "^3.9.5",
+    "xo": "^0.32.0"
   },
   "engines": {
     "node": ">=12.0"
