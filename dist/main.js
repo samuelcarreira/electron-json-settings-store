@@ -70,7 +70,9 @@ class ElectronJSONSettingsStoreMain {
         if (this.options.filePath === undefined) {
             throw new Error('Cannot get the default userData path');
         }
-        this.completeFilePath = path.resolve(this.options.filePath, `${this.options.fileName}.${this.options.fileExtension}`);
+        // @ts-ignore
+        const fileNameWithExtension = `${this.options.fileName}.${this.options.fileExtension}`;
+        this.completeFilePath = path.resolve(this.options.filePath, fileNameWithExtension);
         // Const v = new validator.default();
         // @ts-ignore
         const v = new Validator();
@@ -83,7 +85,10 @@ class ElectronJSONSettingsStoreMain {
         if (this.options.writeBeforeQuit) {
             this._writeBeforeQuit();
         }
-        this._handleIpc();
+        this._handleIpc()
+            .catch(error => {
+            throw new Error(`Cannot handle IPC ${error.toString()}`);
+        });
     }
     /**
      * Get complete settings file path

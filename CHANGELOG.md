@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - 2020-06-05
+### Changed
+- Update sample app to electron v9.1.0
+- Updated fastest-validator library (v1.5.1)
+
 ## [1.0.1] - 2020-06-05
 ### Changed
 - Update sample app to electron v9.0.2
