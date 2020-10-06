@@ -7,7 +7,7 @@
  * Copyright (c) 2020 [Samuel Carreira]
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ValidationError = void 0;
+exports.ElectronJSONSettingsStoreRenderer = exports.ElectronJSONSettingsStoreMain = exports.ValidationError = void 0;
 class ValidationError extends Error {
     constructor(errors, defaultValue) {
         super(errors);

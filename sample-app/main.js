@@ -39,7 +39,8 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       devTools: true,
       contextIsolation: true, // From Electron 12, it will be enabled by default https://github.com/electron/electron/blob/master/docs/tutorial/context-isolation.md
-      enableRemoteModule: false
+      enableRemoteModule: false,
+      worldSafeExecuteJavaScript: true
     }
   });
 
@@ -79,7 +80,8 @@ function createSettingsWindow() {
       preload: path.join(__dirname, 'preload_2.js'),
       contextIsolation: true,
       enableRemoteModule: false,
-      devTools: true
+      devTools: true,
+      worldSafeExecuteJavaScript: true
     }
   });
 
